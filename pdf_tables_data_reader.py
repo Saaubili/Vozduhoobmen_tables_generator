@@ -5,7 +5,7 @@ import re
 def main():
     full_path_to_pdf = input("Пожалуйста, введите полный путь файла: ")
     with pdfplumber.open(full_path_to_pdf) as pdf:
-        for page in pdf.pages[100:]:
+        for page in pdf.pages[5:]:
             all_found_words_explication = page.search(r"Э?кспликация", regex=True)
             if all_found_words_explication:
                 tables_on_page = []
@@ -39,7 +39,7 @@ def main():
 
                 for table in tables_on_page:
                     #print(table.extract())
-                    print(f"Нашёл таблицу на странице {page}")
+                    print(f"Нашёл таблицу на странице {page}: {table.extract()}")
             else:
                 print(f"На странице: {page} нет таблиц")
 
