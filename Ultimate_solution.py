@@ -1,50 +1,41 @@
 import pdfplumber
-import re
+from utility import normalize_cell, is_good_header, normalize_headers
 
-valid_headers = [
-    ["номер помещения", "наименование", "площадь м2", "кат пом"],
-    ["номер", "число", "площадь м2"],
-    ["№пом", "наименование", "площадь м2", "кат пом"],
+raw_headers = [
+    ["Номер помещения", "Наименование", "Площадь, м2", "Кат. Пом."],
+    ["Номер", "Число", "Площадь, м2"],
+    ["№пом", "Наименование", "Площадь м2", "Кат. Пом."],
 ]
 
-def cell_matches(cell, template):
-    return all(word in cell for word in template.split())
+valid_headers = []
+
+biggest_header_len = 10
 
 
-def is_good_header(first_row):
-    normalized_row = normalize_row(first_row)
+def is_word_in_headers(text):
+    text_parts = normalize_cell(text).split()
 
     for header_template in valid_headers:
-        matched_columns = 0
+        for header_word in header_template:
+            header_parts = normalize_cell(header_word).split()
 
-        for column_name in header_template:
-            if any(cell_matches(cell, column_name) for cell in normalized_row):
-                matched_columns += 1
-
-        if matched_columns >= len(header_template) - 1:
-            return True
+            if all(part in header_parts for part in text_parts):
+                return True
 
     return False
 
 
-def normalize_cell(text):
-    if not text:
-        return ""
-    text = text.lower()
-    text = text.replace("\n", " ")
-    text = re.sub(r"[.,:;]", "", text)
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
-
-
-normalize_row = lambda row: [normalize_cell(cell) for cell in row]
+class Table:
+    def __init__(self, header, bbox):
+        self.header = header
+        self.bbox = bbox
 
 def main():
     pdf_path = input("Пожалуйста, введите полный путь к PDF: ").strip().strip('"')
     padding_x = 35
 
     with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages[94:96]:
+        for page in pdf.pages[35:37]:
 
             found_explications = page.search("Э?ксп?ликация", regex=True)
 
@@ -64,7 +55,7 @@ def main():
 
                 print(f"\nСтраница {page.page_number}:")
 
-                successful_tables_bboxes = set()
+                successful_tables = []
                 all_found_tables_bboxes = set()
 
                 for table in tables:
@@ -73,18 +64,22 @@ def main():
 
                     all_found_tables_bboxes.add(table.bbox)
                     data = table.extract()
-                    if data and is_good_header(data[0]):
-                        successful_tables_bboxes.add(table.bbox)
+                    header, is_header_good = is_good_header(data[0], valid_headers)
+                    if data and is_header_good:
+                        table = Table(header, table.bbox)
+                        successful_tables.append(table)
 
                     else:
                         # print(f"Заголовок не подошёл для {data[0]}")
                         continue
 
-                for correct_table in successful_tables_bboxes:
+                for correct_table in successful_tables:
+                    correct_table_bbox = correct_table.bbox
+
                     print(f"\n---------- НОВАЯ ТАБЛИЦА на странице: {page.page_number} -----------\n")
-                    x0 = max(0, correct_table[0] - padding_x)
-                    x1 = min(page.width, correct_table[2] + padding_x)
-                    top = correct_table[1] - 20
+                    x0 = max(0, correct_table_bbox[0] - padding_x)
+                    x1 = min(page.width, correct_table_bbox[2] + padding_x)
+                    top = correct_table_bbox[1] - 20
                     bottom = page.height
 
 
@@ -98,11 +93,16 @@ def main():
                     row = []
 
                     current_height = sorted_words[0]["top"]
-                    for word in sorted_words:
+                    for index, word in enumerate(sorted_words):
                         word_text: str = word["text"]
                         word_top = word["top"]
+                        clean_word = normalize_cell(word_text)
 
-                        if len(word_text.strip(",.:;\\/?!'\" ")) <= 1 and not word_text.isdigit():
+                        if (len(clean_word) <= 1 and not word_text.isdigit()):
+                            continue
+
+                        if index <= biggest_header_len and is_word_in_headers(clean_word):
+                            current_height = word_top
                             continue
 
                         if abs(current_height - word_top) <= 3:
@@ -119,9 +119,15 @@ def main():
 
                     tables_rows = []
                     for row in table:
-                        tables_rows.append(" ".join(row))
+                        tables_rows.append("|".join(row))
+
+                    header_string = ""
+                    for word in correct_table.header:
+                        header_string += word.capitalize() + "|"
+                    tables_rows[0] = header_string
                     print(tables_rows)
 
 
 if __name__ == "__main__":
+    valid_headers = normalize_headers(raw_headers)
     main()
