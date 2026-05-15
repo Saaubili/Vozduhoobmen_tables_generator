@@ -1,8 +1,10 @@
-from utility_for_text import normalize_row
-from  utility_for_coordinates_work import is_within_bbox
+from Utilities.utility_for_text import normalize_row
+from Utilities.utility_for_coordinates_work import is_within_bbox
+
 
 def cell_matches(cell, template):
     return all(word in cell for word in template.split())
+
 
 def is_good_header(first_row, valid_headers):
     normalized_row = normalize_row(first_row)
@@ -20,8 +22,22 @@ def is_good_header(first_row, valid_headers):
     return ("", False)
 
 
+def get_words_from_table(correct_table_bbox, page, padding_x):
+    x0 = max(0, correct_table_bbox[0] - padding_x)
+    x1 = min(page.width, correct_table_bbox[2] + padding_x)
+    top = correct_table_bbox[1] - 20
+    bottom = page.height
 
-def find_successful_tables(table, page, all_found_tables_bboxes, valid_headers):
+    cropped = page.within_bbox((x0, top, x1, bottom))
+
+    words = cropped.extract_words(keep_blank_chars=True)
+
+    x0, y0, x1, y1 = correct_table_bbox
+
+    return [word for word in words if x0 - 10 <= word["x0"] <= x1 + 10]
+
+
+def find_if_tables_is_suitable(table, page, all_found_tables_bboxes, valid_headers):
     data = table.extract()
     header, header_ok = is_good_header(data[0], valid_headers) if data else (None, False)
 

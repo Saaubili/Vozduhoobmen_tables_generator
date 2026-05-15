@@ -45,5 +45,4 @@ def clean_row(row, header):
         row_split_by_dot = row[0].split(".")
         if len(row_split_by_dot) >= 2 and not any(word.isdigit() for word in row_split_by_dot):
             return []
-        return row
     return row
