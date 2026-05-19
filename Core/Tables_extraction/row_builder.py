@@ -1,11 +1,11 @@
-from consts import (
+from Core.consts import (
     forbidden_chars,
     max_index_to_search_header_words_by,
     max_distance_to_snap_words_together,
     max_distance_to_stop_forming_table,
     break_words
 )
-from Utilities.utility_for_text import normalize_cell, is_word_in_headers, clean_row
+from Core.Utilities.utility_for_text import normalize_cell, is_word_in_headers, clean_row
 
 def create_rows_for_table(sorted_words, table, valid_headers):
     current_height = sorted_words[0]["top"]

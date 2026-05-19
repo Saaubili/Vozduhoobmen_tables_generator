@@ -17,4 +17,6 @@ max_distance_to_snap_words_together = 3
 #Расстояние между словами, преодолев которое, таблица считается законченной
 max_distance_to_stop_forming_table = 45
 #Размер шрифта, ниже которого слово "Экспликация" не рассматривается как указывающее на таблицу
-max_font_size_to_not_consider_explication = 10
+min_explication_font_size = 10
+#Стоит ли проверять, совпадает ли количество найденных слов "Экспликация" с количеством найденных таблиц
+should_warn = False

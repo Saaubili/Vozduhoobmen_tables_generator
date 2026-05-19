@@ -6,7 +6,7 @@ normalize_row = lambda row: [normalize_cell(cell) for cell in row]
 def normalize_cell(text):
     if not text:
         return ""
-    text = text.lower()
+    text = str(text).lower()
     text = text.replace("\n", " ")
     text = re.sub(r"[.,:;]", "", text)
     text = re.sub(r"\s+", " ", text).strip()
@@ -46,3 +46,31 @@ def clean_row(row, header):
         if len(row_split_by_dot) >= 2 and not any(word.isdigit() for word in row_split_by_dot):
             return []
     return row
+
+
+def form_floors_list(floors_input):
+    floor_list = []
+    floors_input_split = floors_input.lower().split()
+    for floor in floors_input_split:
+
+        if floor == "без":
+            floor_list.append("Без этажа")
+            continue
+
+        try:
+            floor_list.append(int(floor))
+        except ValueError:
+            pass
+
+    return floor_list
+
+
+def normalize_floor(floor_str):
+    if not floor_str:
+        return "Без этажа"
+
+    match = re.search(r"-?\d+", floor_str)
+    if match:
+        return int(match.group())
+
+    return "Без этажа"

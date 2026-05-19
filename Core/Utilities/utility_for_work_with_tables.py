@@ -1,5 +1,5 @@
-from Utilities.utility_for_text import normalize_row
-from Utilities.utility_for_coordinates_work import is_within_bbox
+from Core.Utilities.utility_for_text import normalize_row
+from Core.Utilities.utility_for_coordinates_work import is_within_bbox
 
 
 def cell_matches(cell, template):
