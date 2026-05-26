@@ -1,3 +1,5 @@
+import copy
+
 raw_headers = [
     ["Номер помещения", "Наименование", "Площадь, м2", "Кат. Пом."],
     ["Номер", "Число", "Площадь, м2"],
@@ -20,3 +22,18 @@ max_distance_to_stop_forming_table = 45
 min_explication_font_size = 10
 #Стоит ли проверять, совпадает ли количество найденных слов "Экспликация" с количеством найденных таблиц
 should_warn = False
+
+DEFAULT_SETTINGS = copy.deepcopy({
+    "raw_headers": raw_headers,
+    "break_words": break_words,
+    "forbidden_chars": forbidden_chars,
+
+    "max_index_to_search_header_words_by": max_index_to_search_header_words_by,
+
+    "max_distance_to_snap_words_together": max_distance_to_snap_words_together,
+    "max_distance_to_stop_forming_table": max_distance_to_stop_forming_table,
+
+    "min_explication_font_size": min_explication_font_size,
+
+    "should_warn": should_warn,
+})

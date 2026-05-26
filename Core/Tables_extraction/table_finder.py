@@ -3,7 +3,7 @@ from Core.Utilities.utility_for_work_with_tables import find_if_tables_is_suitab
 from Core.Utilities.utility_for_text import normalize_floor
 from Core.Utilities.room_parser import get_floor
 from .row_builder import clear_table_rows, create_rows_for_table
-from Core.Table_class import Table
+from Core.table_class import Table
 
 
 def find_suitable_tables(all_found_tables_bboxes, found_explications, page, valid_headers, floors_list):

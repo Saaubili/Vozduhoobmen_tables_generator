@@ -16,7 +16,7 @@ def collect_data_from_pdf(pdf_path, chosen_floors, logger=print):
     seen_room_nos = defaultdict(set)
 
     with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages[35:]:
+        for page in pdf.pages:
             logger(f"\nСтраница {page.page_number}:")
 
             row_found_explications = page.search("Э?ксп?ликация", regex=True)
