@@ -18,7 +18,7 @@ class App:
 
         self.pdf_path = tk.StringVar()
         self.floors = tk.StringVar()
-        self.output_path = tk.StringVar(value="Результат")
+        self.output_path = tk.StringVar(value="Результат.xlsx")
 
         self.show_full_error = tk.BooleanVar(value=False)
 
@@ -89,6 +89,12 @@ class App:
 
         ttk.Button(win, text="Закрыть", command=win.destroy).pack(pady=5)
 
+    def check_extension(self):
+        output = self.output_path.get().strip()
+        if not output.lower().endswith(".xlsx"):
+            output += ".xlsx"
+        self.output_path.set(output)
+
     def process(self):
         def logger(msg):
             self.root.after(0, lambda: self.write_log(msg))
@@ -114,9 +120,10 @@ class App:
                 output_path = "Результат.xlsx"
 
             logger("Создание Excel...")
+            self.check_extension()
             create_excel(data, output_path=output_path)
             logger("Готово")
-            self.root.after(0, lambda: messagebox.showinfo("Готово", "Excel создан"))
+            self.root.after(0, lambda: messagebox.showinfo("Готово", f"Excel файл создан по адресу: {self.output_path.get()}"))
 
 
         except FileNotFoundError:
